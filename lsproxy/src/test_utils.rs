@@ -53,7 +53,7 @@ impl TestContext {
     pub async fn setup(file_path: &str, manager: bool) -> Result<Self, Box<dyn std::error::Error>> {
         set_thread_local_mount_dir(file_path);
         if manager {
-            let mut manager = Manager::new(file_path).await?;
+            let mut manager = Manager::new(file_path, None).await?;
             if let Err(e) = manager.start_langservers(file_path).await {
                 unset_thread_local_mount_dir();
                 return Err(e);

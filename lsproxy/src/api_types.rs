@@ -71,6 +71,7 @@ pub enum SupportedLanguages {
     Python,
     /// TypeScript and JavaScript are handled by the same langserver
     #[serde(rename = "typescript_javascript")]
+    #[strum(serialize = "typescript_javascript")]
     TypeScriptJavaScript,
     #[serde(rename = "rust")]
     Rust,
@@ -87,6 +88,7 @@ pub enum SupportedLanguages {
     #[serde(rename = "ruby")]
     Ruby,
     #[serde(rename = "ruby_sorbet")]
+    #[strum(serialize = "ruby_sorbet")]
     RubySorbet,
 }
 

@@ -9,20 +9,27 @@ NC='\033[0m' # No Color
 
 # Help function
 print_usage() {
-    echo -e "${BLUE}Usage: $0 [--no-auth] <workspace_path>${NC}"
-    echo -e "  --no-auth    : Disable authentication (sets USE_AUTH=false)"
-    echo -e "  workspace_path: Path to the workspace directory"
+    echo -e "${BLUE}Usage: $0 [--no-auth] [--languages LANGS] <workspace_path>${NC}"
+    echo -e "  --no-auth        : Disable authentication (sets USE_AUTH=false)"
+    echo -e "  --languages LANGS: Comma-separated list of languages to start (e.g., python,golang)"
+    echo -e "                     Supported: python, typescript_javascript, rust, cpp, csharp, java, golang, php, ruby, ruby_sorbet"
+    echo -e "  workspace_path   : Path to the workspace directory"
 }
 
 # Parse command line arguments
 WORKSPACE_PATH=""
 USE_AUTH=true
+LANGUAGES=""
 
 while [[ $# -gt 0 ]]; do
     case $1 in
         --no-auth)
             USE_AUTH=false
             shift
+            ;;
+        --languages)
+            LANGUAGES="$2"
+            shift 2
             ;;
         -h|--help)
             print_usage
@@ -62,6 +69,13 @@ else
     AUTH_ENV="-e USE_AUTH=false"
 fi
 
+# Set languages environment variable if specified
+LANGUAGES_ENV=""
+if [ -n "$LANGUAGES" ]; then
+    echo -e "${BLUE}Starting with languages: $LANGUAGES${NC}"
+    LANGUAGES_ENV="-e LANGUAGES=$LANGUAGES"
+fi
+
 echo -e "${BLUE}Starting application...${NC}"
 
 # Run the build
@@ -71,5 +85,6 @@ echo -e "${BLUE}Starting application...${NC}"
 docker run --rm -p 4444:4444 \
     -v "$WORKSPACE_PATH:/mnt/workspace" \
     $AUTH_ENV \
+    $LANGUAGES_ENV \
     -v "$(pwd)/lsproxy/target/release":/usr/src/app \
     lsproxy-dev ./lsproxy

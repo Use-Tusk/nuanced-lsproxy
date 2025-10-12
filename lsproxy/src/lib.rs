@@ -100,11 +100,12 @@ pub struct AppState {
 }
 
 pub async fn initialize_app_state() -> Result<Data<AppState>, Box<dyn std::error::Error>> {
-    initialize_app_state_with_mount_dir(None).await
+    initialize_app_state_with_mount_dir(None, None).await
 }
 
 pub async fn initialize_app_state_with_mount_dir(
     mount_dir_override: Option<&str>,
+    languages: Option<Vec<SupportedLanguages>>,
 ) -> Result<Data<AppState>, Box<dyn std::error::Error>> {
     if let Some(global_mount_dir) = mount_dir_override {
         set_global_mount_dir(global_mount_dir);
@@ -123,7 +124,7 @@ pub async fn initialize_app_state_with_mount_dir(
     let mount_dir = mount_dir_path.to_string_lossy();
 
     // Create and initialize manager before wrapping in Arc
-    let mut manager = Manager::new(&mount_dir).await?;
+    let mut manager = Manager::new(&mount_dir, languages).await?;
     manager.start_langservers(&mount_dir).await?;
     let manager = Arc::new(manager);
 
