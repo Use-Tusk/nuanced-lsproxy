@@ -33,10 +33,14 @@ pub struct Manager {
     lsp_clients: HashMap<SupportedLanguages, Arc<Mutex<Box<dyn LspClient>>>>,
     watch_events_sender: Sender<DebouncedEvent>,
     ast_grep: AstGrepClient,
+    requested_languages: Option<Vec<SupportedLanguages>>,
 }
 
 impl Manager {
-    pub async fn new(root_path: &str) -> Result<Self, Box<dyn Error>> {
+    pub async fn new(
+        root_path: &str,
+        requested_languages: Option<Vec<SupportedLanguages>>,
+    ) -> Result<Self, Box<dyn Error>> {
         let (tx, _) = channel(100);
         let event_sender = tx.clone();
         let mut debouncer = new_debouncer(
@@ -63,6 +67,7 @@ impl Manager {
             lsp_clients: HashMap::new(),
             watch_events_sender: event_sender,
             ast_grep,
+            requested_languages,
         })
     }
 
@@ -143,7 +148,13 @@ impl Manager {
         &mut self,
         workspace_path: &str,
     ) -> Result<(), Box<dyn std::error::Error>> {
-        let lsps = self.detect_languages_in_workspace(workspace_path);
+        let lsps = if let Some(ref requested) = self.requested_languages {
+            info!("Using explicitly requested languages: {:?}", requested);
+            requested.clone()
+        } else {
+            info!("Auto-detecting languages in workspace...");
+            self.detect_languages_in_workspace(workspace_path)
+        };
         for lsp in lsps {
             if self.get_client(lsp).is_some() {
                 continue;

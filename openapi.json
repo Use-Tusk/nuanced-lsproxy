@@ -759,7 +759,8 @@
           "java",
           "golang",
           "php",
-          "ruby"
+          "ruby",
+          "ruby_sorbet"
         ]
       },
       "Symbol": {

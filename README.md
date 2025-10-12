@@ -47,6 +47,7 @@ You can find the source for the SDK [here](https://github.com/agentic-labs/lspro
 
 ### Run a container or add to compose
 > :warning: Version 0.2.0 and newer: JWT authentication is enabled by default for endpoints. So you MUST provide a secret or turn it off as described below
+
 #### Authentication enabled
 ```bash
 docker run -p 4444:4444 -v $WORKSPACE_PATH:/mnt/workspace -e JWT_SECRET=shared_secret agenticlabs/lsproxy
@@ -80,6 +81,41 @@ services:
     volumes:
       - ${WORKSPACE_PATH}:/mnt/workspace
 ```
+
+#### Specifying languages to start (optional)
+By default, `lsproxy` auto-detects languages by scanning your workspace. For large workspaces, you can reduce startup time by explicitly specifying which language servers to start:
+
+```bash
+docker run -p 4444:4444 -v $WORKSPACE_PATH:/mnt/workspace \
+  -e JWT_SECRET=shared_secret \
+  -e LANGUAGES=typescript_javascript,golang \
+  agenticlabs/lsproxy
+```
+
+```dockerfile
+services:
+  lsproxy:
+    image: agenticlabs/lsproxy
+    ports:
+      - "4444:4444"
+    environment:
+      - JWT_SECRET=shared_secret
+      - LANGUAGES=typescript_javascript,golang
+    volumes:
+      - ${WORKSPACE_PATH}:/mnt/workspace
+```
+
+Supported language values (comma-separated):
+- `python`
+- `typescript_javascript`
+- `rust`
+- `cpp`
+- `csharp`
+- `java`
+- `golang`
+- `php`
+- `ruby`
+- `ruby_sorbet`
 ### Configure an existing system
 You can also configure an existing system to run `lsproxy`. Add the following line in your dockerfile or run it as part of a startup script
 ```bash
